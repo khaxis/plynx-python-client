@@ -1,4 +1,5 @@
-import abc, six
+import abc
+import six
 
 class MissingArgumentError(ValueError):
     pass
@@ -140,6 +141,7 @@ class BaseNode():
             'description': self.description,
             'title': self.title,
             'block_running_status': self.block_running_status,
+            'derived_from': self.derived_from,
             'inputs': self.inputs._dictify(),
             'parameters': self.params._dictify(),
             'outputs': self.outputs._dictify(),
@@ -149,6 +151,3 @@ class BaseNode():
 
         }
         return node_dict
-
-    def _expand(self, client):
-        client

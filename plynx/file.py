@@ -29,7 +29,7 @@ class File(BaseNode):
         self.derived_from = kwargs.get('id', '')
         if not self.derived_from:
             raise MissingArgumentError('`id` is requered')
-        self.derived_from = ObjectId(self.derived_from)
+        self.derived_from = self.derived_from
 
         self.inputs = Inputs([])
         self.params = Params([])

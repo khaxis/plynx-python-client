@@ -1,7 +1,26 @@
 from . import InvalidTypeArgumentError, BaseNode, File, Block
+from . import _get_obj, _save_graph
 from collections import deque
 import json
 import requests
+import copy
+import collections
+
+def update_recursive(d, u):
+    for k, v in u.items():
+        if isinstance(v, collections.Mapping):
+            d[k] = update_recursive(d.get(k, {}), v)
+        elif isinstance(v, list):
+            for v_item in v:
+                if 'name' in v_item:
+                    for d_item in d[k]:
+                        if 'name' in d_item and d_item['name'] == v_item['name']:
+                            update_recursive(d_item, v_item)
+                else:
+                    d[k].append(v_item)
+        else:
+            d[k] = v if v else d[k]
+    return d
 
 def traverse_nodes(graph, targets):
     nodes = []
@@ -33,43 +52,35 @@ class Graph(object):
                 raise InvalidTypeArgumentError('Target is expected to be an instance of {}, found `{}`'.format(BaseNode, type(target)))
 
     def _dictify(self):
+        nodes = [node for node in traverse_nodes(self, self.targets)]
+        plynx_nodes = {}
+        for node_type, derived_from in set([(n.node_type, n.derived_from) for n in nodes]):
+            obj = _get_obj('{}s'.format(node_type), derived_from, self.client)
+            plynx_nodes[derived_from] = obj
+
         blocks = []
+        for node in nodes:
+            node_dict = node._dictify()
+            plynx_node = copy.deepcopy(plynx_nodes[node.derived_from])
+            update_recursive(plynx_node, node_dict)
+            blocks.append(plynx_node)
+
         graph = {
             'title': self.title,
             'description': self.description,
             'graph_running_status': 'CREATED',
-            'blocks': [node._dictify() for node in traverse_nodes(self, self.targets)]
+            'blocks': blocks
         }
         return graph
 
     def save(self):
-        print(self._dictify())
-        return self
-        print('-' * 20)
-        response = requests.post(
-            self.client.endpoint + '/graphs',
-            headers={"Content-Type": "application/json"},
-            auth=(self.client.token, ''),
-            data=json.dumps({
-                'body': {
-                    'graph': self._dictify(),
-                    'action': 'fake'
-                    }
-                })
-            )
-        print json.loads(response.content)
-        print('-' * 20)
+        d = self._dictify()
+        _save_graph(graph=d, action='SAVE', client=self.client)
         return self
 
     def approve(self):
-        """print('-' * 20)
-        response = requests.get(
-            self.client.endpoint + '/graphs',
-            headers={"Content-Type": "application/json"},
-            auth=(self.client.token, '')
-            )
-        print type(response.content)
-        print('-' * 20)"""
+        d = self._dictify()
+        _save_graph(graph=d, action='APPROVE', client=self.client)
         return self
 
     def run(self):

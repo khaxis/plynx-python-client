@@ -38,7 +38,7 @@ def Block(**kwargs):
             self.derived_from = args.get('id', '')
             if not self.derived_from:
                 raise MissingArgumentError('`id` is requered')
-            self.derived_from = ObjectId(self.derived_from)
+            self.derived_from = self.derived_from
 
             self.inputs = Inputs(args.get('inputs', []), **args)
             self.params = Params(args.get('params', []), **args)
@@ -46,6 +46,6 @@ def Block(**kwargs):
 
             # same values across all blocks
             self.node_type = 'block'
-            self.block_running_status = 'READY'
+            self.block_running_status = ''
 
     return BlockClass
