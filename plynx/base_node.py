@@ -26,7 +26,7 @@ class NodeProps(object):
             self.__class__.__name__,
             ', '.join(
                 ['{}: {}'.format(
-                    pyname, self.__getattribute__(pyname))
+                    pyname, getattr(self, pyname))
                     for pyname in self._pyname_to_name.keys()
                 ]
             )
@@ -44,7 +44,7 @@ class NodeProps(object):
         return self.__getattribute__(self._name_to_pyname[name])
 
     def __setitem__(self, name, value):
-        return self.__setattr__(self._name_to_pyname[name], value)
+        setattr(self, self._name_to_pyname[name], value)
 
     def __iter__(self):
         for name in self._name_to_pyname.keys():
@@ -59,11 +59,11 @@ class Inputs(NodeProps):
     def __init__(self, names, **extra_args):
         super(Inputs, self).__init__(names)
         for pyname in self._pyname_to_name.keys():
-            self.__setattr__(pyname, None)
+            setattr(self, pyname, None)
         self._initialized = True
-        for name, value in extra_args.items():
-            if name in self._pyname_to_name:
-                self.__setattr__(pyname, value)
+        for pyname, value in extra_args.items():
+            if pyname in self._pyname_to_name:
+                setattr(self, pyname, value)
 
     def __setattr__(self, key, value):
         if '_initialized' in self.__dict__ and self._initialized:
@@ -82,10 +82,10 @@ class Inputs(NodeProps):
     def _dictify(self):
         return [
             {
-                'name': pyname,
-                'values': [output_item._dictify() for output_item in  self.__getattribute__(pyname)]
+                'name': name,
+                'values': [output_item._dictify() for output_item in getattr(self, pyname)]
             }
-            for pyname in self._pyname_to_name.keys()
+            for pyname, name in self._pyname_to_name.items()
         ]
 
 
@@ -109,7 +109,7 @@ class Outputs(NodeProps):
     def __init__(self, node, names):
         super(Outputs, self).__init__(names)
         for pyname, name in self._pyname_to_name.items():
-            self.__setattr__(pyname, OutputItem(node, name))
+            setattr(self, pyname, OutputItem(node, name))
         self._initialized = True
 
     def _dictify(self):
@@ -120,15 +120,15 @@ class Params(NodeProps):
     def __init__(self, names, **extra_args):
         super(Params, self).__init__(names)
         for pyname in self._pyname_to_name.keys():
-            self.__setattr__(pyname, None)
-        for name, value in extra_args.items():
-            if name in self._pyname_to_name:
-                self.__setattr__(pyname, value)
+            setattr(self, pyname, None)
+        for pyname, value in extra_args.items():
+            if pyname in self._pyname_to_name:
+                setattr(self, pyname, value)
         self._initialized = True
 
     def _dictify(self):
         return [
-            {'name': pyname, 'value': self.__getattribute__(pyname)}
+            {'name': pyname, 'value': getattr(self, pyname)}
             for pyname in self._pyname_to_name.keys()
         ]
 
