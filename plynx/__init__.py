@@ -1,6 +1,6 @@
 from .exceptions import MissingArgumentError, InvalidTypeArgumentError, \
     NodeAttributeError, ApiActionError, InvalidUssageError, GraphFailed
-from .api import _get_obj, _save_graph
+from .api import _get_obj, _save_graph, _get_access_token
 from .base_node import NodeProps, Inputs, OutputItem, Outputs, Params, BaseNode
 from .block import Block
 from .client import Client
@@ -39,5 +39,6 @@ __all__ = [
     File,
     set_logging_level,
     _get_obj,
-    _save_graph
+    _save_graph,
+    _get_access_token
 ]

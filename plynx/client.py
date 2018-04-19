@@ -1,3 +1,4 @@
+from . import _get_access_token
 import os
 
 class Client(object):
@@ -11,5 +12,14 @@ class Client(object):
             os.path.join(os.path.expanduser("~"), '.plynx_token')
 
         with open(token_path) as f:
-            self.refresh_token = f.readline().rstrip()
-        print self.refresh_token
+            self._refresh_token = f.readline().rstrip()
+
+        self.access_token = None
+
+    def update_token(self):
+        self.access_token = _get_access_token(self._refresh_token, self)
+
+    def get_token(self):
+        if not self.access_token:
+            self.update_token()
+        return self.access_token
