@@ -75,7 +75,10 @@ class Inputs(NodeProps):
         return [
             {
                 'name': name,
-                'values': [output_item._dictify() for output_item in getattr(self, pyname)]
+                'values': [
+                    output_item._dictify()
+                    for output_item in getattr(self, pyname)
+                ] if getattr(self, pyname) else []
             }
             for pyname, name in self._pyname_to_name.items()
         ]
