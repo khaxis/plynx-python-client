@@ -82,7 +82,6 @@ class Graph(object):
         d = self._dictify()
         if self._graph_dict:
             d['_id'] = self._graph_dict['_id']
-        d['_id'] = '5acda1150310e90e6de3f64f'
         self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'SAVE'], client=self.client)
         logging.info('Graph successfully saved: {}'.format(url))
         return self
@@ -91,7 +90,6 @@ class Graph(object):
         d = self._dictify()
         if self._graph_dict:
             d['_id'] = self._graph_dict['_id']
-        d['_id'] = '5acda1150310e90e6de3f64f'
         self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'APPROVE'], client=self.client)
         logging.info('Graph successfully approved: {}'.format(url))
         return self
