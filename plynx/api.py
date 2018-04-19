@@ -11,7 +11,7 @@ def _get_obj(obj_path, obj_id, client):
             id=obj_id
             ),
         headers={"Content-Type": "application/json"},
-        auth=(client.token, '')
+        auth=(client.refresh_token, '')
         )
     if not response.ok:
         raise ApiActionError(response.content)
@@ -25,7 +25,7 @@ def _save_graph(graph, actions, client):
             path='graphs'
             ),
         headers={"Content-Type": "application/json"},
-        auth=(client.token, ''),
+        auth=(client.refresh_token, ''),
         data=json.dumps({
             'body': {
                 'graph': graph,
