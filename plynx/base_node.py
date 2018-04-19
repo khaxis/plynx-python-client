@@ -1,14 +1,6 @@
+from . import MissingArgumentError, InvalidTypeArgumentError, NodeAttributeError
 import abc
 import six
-
-class MissingArgumentError(ValueError):
-    pass
-
-class InvalidTypeArgumentError(TypeError):
-    pass
-
-class NodeAttributeError(AttributeError):
-    pass
 
 class NodeProps(object):
     def __init__(self, names):

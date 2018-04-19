@@ -1,10 +1,13 @@
-from . import InvalidTypeArgumentError, BaseNode, File, Block
+from . import InvalidTypeArgumentError, BaseNode, File, Block, \
+    InvalidUssageError, GraphFailed
 from . import _get_obj, _save_graph
 from collections import deque
 import json
 import requests
 import copy
 import collections
+import time
+import logging
 
 def update_recursive(d, u):
     for k, v in u.items():
@@ -33,6 +36,7 @@ def traverse_nodes(graph, targets):
         visited_nodes.add(node._id)
         nodes.append(node)
         for name, output_items in node.inputs.items():
+            print '>>', name, type(node.inputs)
             for output_item in output_items:
                 if output_item.node._id in visited_nodes:
                     continue
@@ -45,6 +49,7 @@ class Graph(object):
         self.title = title or ''
         self.description = description or ''
         self.targets = targets
+        self._graph_dict = None
         if not isinstance(targets, list):
             self.targets = [targets]
         for target in self.targets:
@@ -75,13 +80,57 @@ class Graph(object):
 
     def save(self):
         d = self._dictify()
-        _save_graph(graph=d, action='SAVE', client=self.client)
+        if self._graph_dict:
+            d['_id'] = self._graph_dict['_id']
+        self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'SAVE'], client=self.client)
+        logging.info('Graph successfully saved: {}'.format(url))
         return self
 
     def approve(self):
         d = self._dictify()
-        _save_graph(graph=d, action='APPROVE', client=self.client)
+        if self._graph_dict:
+            d['_id'] = self._graph_dict['_id']
+        self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'APPROVE'], client=self.client)
+        logging.info('Graph successfully approved: {}'.format(url))
         return self
 
-    def run(self):
+    def wait(self):
+        if not self._graph_dict:
+            raise InvalidUssageError("The graph neigher saved nor approved yet")
+        if self._graph_dict["graph_running_status"].upper() == "CREATED":
+            raise InvalidUssageError("The graph must be approved first")
+
+        while True:
+            graph = _get_obj("graphs", self._graph_dict["_id"], self.client)
+            counter = collections.Counter(
+                [
+                    block['block_running_status'] for block in graph['blocks']
+                ]
+            )
+            graph_running_status = graph['graph_running_status']
+            numerator = counter.get("SUCCESS", 0)
+            denominator = sum(counter.values()) - counter.get("STATIC", 0)
+            if denominator > 0:
+                progress = float(numerator) / denominator
+            else:
+                progress = 1.0
+            block_running_statuss = map(
+                lambda r: '{}: {}'.format(r[0], r[1]),
+                counter.items()
+            )
+
+            logging.info('\t'.join(
+                [
+                    graph_running_status,
+                    '{0:.0f}%'.format(progress * 100)
+                ] + block_running_statuss))
+
+            if graph_running_status.upper() not in ["READY", "RUNNING", "SUCCESS"]:
+                raise GraphFailed('Graph finished with status `{}`'.format(graph_running_status))
+
+            if graph_running_status.upper() == "SUCCESS":
+                logging.info('Graph finished with status `{}`'.format(graph_running_status))
+                break
+
+            time.sleep(1)
         return self
