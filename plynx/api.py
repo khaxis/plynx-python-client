@@ -1,4 +1,4 @@
-from . import ApiActionError
+from . import ApiActionError, _GraphPostStatus, _ValidationCode
 import json
 import requests
 import logging
@@ -51,8 +51,8 @@ def _save_graph(graph, actions, client):
     if not response.ok:
         raise ApiActionError(response.content)
     content = json.loads(response.content)
-    if content['status'].upper() != 'SUCCESS':
-        if content['status'].upper() == 'VALIDATION_FAILED':
+    if content['status'].upper() != _GraphPostStatus.SUCCESS:
+        if content['status'].upper() == _GraphPostStatus.VALIDATION_FAILED:
             logging.error('Validation error:')
             _print_validation_error(content['validation_error'])
         raise ApiActionError(content['message'])
@@ -72,11 +72,11 @@ def _get_access_token(refresh_token, client):
 def _print_validation_error(validation_error):
     for child in validation_error['children']:
         validation_code = child['validation_code']
-        if validation_code == 'IN_DEPENDENTS':
+        if validation_code == _ValidationCode.IN_DEPENDENTS:
             _print_validation_error(child)
-        elif validation_code == 'MISSING_INPUT':
+        elif validation_code == _ValidationCode.MISSING_INPUT:
             logging.error('Missing input: `{}`'.format(child['object_id']))
-        elif validation_code == 'MISSING_PARAMETER':
+        elif validation_code == _ValidationCode.MISSING_PARAMETER:
             logging.error('Missing parameter: `{}`'.format(child['object_id']))
         else:
             logging.error('Unexpected Error')

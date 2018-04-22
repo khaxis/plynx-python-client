@@ -1,5 +1,6 @@
 from . import InvalidTypeArgumentError, BaseNode, File, Block, \
-    InvalidUssageError, GraphFailed
+    InvalidUssageError, GraphFailed, _BlockRunningStatus, _GraphRunningStatus, \
+    _GraphPostAction
 from . import _get_obj, _save_graph
 from collections import deque
 import json
@@ -73,7 +74,7 @@ class Graph(object):
         graph = {
             'title': self.title,
             'description': self.description,
-            'graph_running_status': 'CREATED',
+            'graph_running_status': _BlockRunningStatus.CREATED,
             'blocks': blocks
         }
         return graph
@@ -82,7 +83,7 @@ class Graph(object):
         d = self._dictify()
         if self._graph_dict:
             d['_id'] = self._graph_dict['_id']
-        self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'SAVE'], client=self.client)
+        self._graph_dict, url = _save_graph(graph=d, actions=[_GraphPostAction.AUTO_LAYOUT, _GraphPostAction.SAVE], client=self.client)
         logging.info('Graph successfully saved: {}'.format(url))
         return self
 
@@ -90,14 +91,14 @@ class Graph(object):
         d = self._dictify()
         if self._graph_dict:
             d['_id'] = self._graph_dict['_id']
-        self._graph_dict, url = _save_graph(graph=d, actions=['AUTO_LAYOUT', 'APPROVE'], client=self.client)
+        self._graph_dict, url = _save_graph(graph=d, actions=[_GraphPostAction.AUTO_LAYOUT, _GraphPostAction.APPROVE], client=self.client)
         logging.info('Graph successfully approved: {}'.format(url))
         return self
 
     def wait(self):
         if not self._graph_dict:
             raise InvalidUssageError("The graph neigher saved nor approved yet")
-        if self._graph_dict["graph_running_status"].upper() == "CREATED":
+        if self._graph_dict["graph_running_status"].upper() == _GraphRunningStatus.CREATED:
             raise InvalidUssageError("The graph must be approved first")
 
         while True:
@@ -108,8 +109,8 @@ class Graph(object):
                 ]
             )
             graph_running_status = graph['graph_running_status']
-            numerator = counter.get("SUCCESS", 0)
-            denominator = sum(counter.values()) - counter.get("STATIC", 0)
+            numerator = counter.get(_BlockRunningStatus.SUCCESS, 0)
+            denominator = sum(counter.values()) - counter.get(_BlockRunningStatus.STATIC, 0)
             if denominator > 0:
                 progress = float(numerator) / denominator
             else:
@@ -125,10 +126,13 @@ class Graph(object):
                     '{0:.0f}%'.format(progress * 100)
                 ] + block_running_statuss))
 
-            if graph_running_status.upper() not in ["READY", "RUNNING", "SUCCESS"]:
+            if graph_running_status.upper() not in [
+                    _GraphRunningStatus.READY,
+                    _GraphRunningStatus.RUNNING,
+                    _GraphRunningStatus.SUCCESS]:
                 raise GraphFailed('Graph finished with status `{}`'.format(graph_running_status))
 
-            if graph_running_status.upper() == "SUCCESS":
+            if graph_running_status.upper() == _GraphRunningStatus.SUCCESS:
                 logging.info('Graph finished with status `{}`'.format(graph_running_status))
                 break
 
