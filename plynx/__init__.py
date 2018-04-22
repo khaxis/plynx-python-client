@@ -10,6 +10,7 @@ from .file import File
 from .graph import Graph
 import logging
 
+
 def set_logging_level(verbose):
     LOG_LEVELS = {
         0: logging.CRITICAL,

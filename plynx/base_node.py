@@ -2,6 +2,7 @@ from . import MissingArgumentError, InvalidTypeArgumentError, NodeAttributeError
 import abc
 import six
 
+
 class NodeProps(object):
     def __init__(self, names):
         super(NodeProps, self).__init__()
@@ -16,11 +17,12 @@ class NodeProps(object):
     def __repr__(self):
         return '{}({})'.format(
             self.__class__.__name__,
-            ', '.join(
-                ['{}: {}'.format(
-                    pyname, getattr(self, pyname))
-                    for pyname in self._pyname_to_name.keys()
-                ]
+            ', '.join([
+                '{}: {}'.format(
+                    pyname,
+                    getattr(self, pyname)
+                ) for pyname in self._pyname_to_name.keys()
+            ]
             )
         )
 
@@ -62,12 +64,20 @@ class Inputs(NodeProps):
             if isinstance(value, list):
                 for item in value:
                     if not isinstance(item, OutputItem):
-                        raise InvalidTypeArgumentError('Expected type `{}`, got `{}`'
-                            .format(OutputItem, type(item)))
+                        raise InvalidTypeArgumentError(
+                            'Expected type `{}`, got `{}`'.format(
+                                OutputItem,
+                                type(item)
+                            )
+                        )
             else:
                 if value is not None and not isinstance(value, OutputItem):
-                    raise InvalidTypeArgumentError('Expected type `{}`, got `{}`'
-                        .format(OutputItem, type(value)))
+                    raise InvalidTypeArgumentError(
+                        'Expected type `{}`, got `{}`'.format(
+                            OutputItem,
+                            type(value)
+                        )
+                    )
                 value = [value]
         super(Inputs, self).__setattr__(key, value)
 
@@ -140,8 +150,8 @@ class BaseNode():
             'inputs': self.inputs._dictify(),
             'parameters': self.params._dictify(),
             'outputs': self.outputs._dictify(),
-            'y':0,
-            'x':0,
+            'y': 0,
+            'x': 0,
             '_id': str(self._id)
 
         }

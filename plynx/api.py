@@ -4,6 +4,7 @@ import requests
 import logging
 import time
 
+
 def _get_obj(obj_path, obj_id, client):
     for it in range(3):
         response = requests.get(
@@ -25,6 +26,7 @@ def _get_obj(obj_path, obj_id, client):
         raise ApiActionError(response.content)
     content = json.loads(response.content)
     return content['data']
+
 
 def _save_graph(graph, actions, client):
     for it in range(3):
@@ -58,6 +60,7 @@ def _save_graph(graph, actions, client):
         raise ApiActionError(content['message'])
     return content['graph'], content['url']
 
+
 def _get_access_token(refresh_token, client):
     response = requests.get(
         '{endpoint}/token'.format(
@@ -68,6 +71,7 @@ def _get_access_token(refresh_token, client):
         )
     content = json.loads(response.content)
     return content['access_token'] if response.ok else None
+
 
 def _print_validation_error(validation_error):
     for child in validation_error['children']:

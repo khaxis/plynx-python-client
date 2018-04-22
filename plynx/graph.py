@@ -10,6 +10,7 @@ import collections
 import time
 import logging
 
+
 def update_recursive(d, u):
     for k, v in u.items():
         if isinstance(v, collections.Mapping):
@@ -25,6 +26,7 @@ def update_recursive(d, u):
         else:
             d[k] = v if v else d[k]
     return d
+
 
 def traverse_nodes(graph, targets):
     nodes = []
@@ -43,6 +45,7 @@ def traverse_nodes(graph, targets):
                         continue
                     to_visit.append(output_item.node)
     return nodes
+
 
 class Graph(object):
     def __init__(self, client=None, title=None, description=None, targets=None):

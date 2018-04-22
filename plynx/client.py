@@ -1,6 +1,7 @@
 from . import _get_access_token
 import os
 
+
 class Client(object):
     def __init__(self, endpoint=None, token_path=None):
         self.endpoint = endpoint or \

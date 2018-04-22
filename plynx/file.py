@@ -1,5 +1,5 @@
 from bson.objectid import ObjectId
-from . import  MissingArgumentError, InvalidTypeArgumentError, Inputs, Params, \
+from . import MissingArgumentError, InvalidTypeArgumentError, Inputs, Params, \
     Outputs, BaseNode
 
 REQUIRED_ARGUMENTS = {

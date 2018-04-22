@@ -6,6 +6,7 @@ class _BlockRunningStatus(object):
     SUCCESS = 'SUCCESS'
     FAILED = 'FAILED'
 
+
 class _GraphRunningStatus(object):
     CREATED = 'CREATED'
     READY = 'READY'
@@ -13,16 +14,19 @@ class _GraphRunningStatus(object):
     SUCCESS = 'SUCCESS'
     FAILED = 'FAILED'
 
+
 class _GraphPostAction(object):
     SAVE = 'SAVE'
     APPROVE = 'APPROVE'
     VALIDATE = 'VALIDATE'
     AUTO_LAYOUT = 'AUTO_LAYOUT'
 
+
 class _GraphPostStatus(object):
     SUCCESS = 'SUCCESS'
     FAILED = 'FAILED'
     VALIDATION_FAILED = 'VALIDATION_FAILED'
+
 
 class _ValidationCode(object):
     IN_DEPENDENTS = 'IN_DEPENDENTS'
