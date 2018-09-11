@@ -4,8 +4,7 @@ from . import InvalidTypeArgumentError, MissingArgumentError, \
     Inputs, Outputs, Params, BaseNode
 
 REQUIRED_ARGUMENTS = {
-    'id',
-    'title'
+    'id'
 }
 
 ARGUMENT_TYPES = {
@@ -18,10 +17,10 @@ ARGUMENT_TYPES = {
 }
 
 
-def Block(**kwargs):
-    class BlockClass(BaseNode):
+def Node(**kwargs):
+    class NodeClass(BaseNode):
         def __init__(self, **extra_args):
-            super(BlockClass, self).__init__()
+            super(NodeClass, self).__init__()
             args = copy.deepcopy(kwargs)
             args.update(extra_args)
             for key in REQUIRED_ARGUMENTS:
@@ -33,19 +32,23 @@ def Block(**kwargs):
 
             self._id = ObjectId()
             self.title = extra_args.get('title', kwargs.get('title', ''))
-            self.description = extra_args.get('title', kwargs.get('description', ''))
+            self.description = extra_args.get('description', kwargs.get('description', ''))
 
-            self.derived_from = args.get('id', '')
-            if not self.derived_from:
+            self.parent_node = args.get('id', '')
+            if not self.parent_node:
                 raise MissingArgumentError('`id` is requered')
-            self.derived_from = self.derived_from
 
             self.inputs = Inputs(args.get('inputs', []), **args)
             self.params = Params(args.get('params', []), **args)
             self.outputs = Outputs(self, args.get('outputs', []))
 
-            # same values across all blocks
-            self.node_type = 'block'
-            self.block_running_status = ''
+            # same values across all nodes
+            self.base_node_name = ''
+            self.node_running_status = ''
 
-    return BlockClass
+    return NodeClass
+
+
+def File(**kwargs):
+    #kwargs['outputs'] = ['out']
+    return Node(outputs=['out'])(**kwargs)

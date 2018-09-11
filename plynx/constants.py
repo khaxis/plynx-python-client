@@ -1,4 +1,4 @@
-class _BlockRunningStatus(object):
+class _NodeRunningStatus(object):
     STATIC = 'STATIC'
     CREATED = 'CREATED'
     IN_QUEUE = 'IN_QUEUE'

@@ -105,7 +105,7 @@ class OutputItem(object):
     def _dictify(self):
         return {
             'output_id': self.output_name,
-            'block_id': str(self.node._id),
+            'node_id': str(self.node._id),
             'resource_id': None
             }
 
@@ -142,11 +142,10 @@ class Params(NodeProps):
 class BaseNode():
     def _dictify(self):
         node_dict = {
-            '_type': self.node_type,
+            'parent_node': self.parent_node,
             'description': self.description,
             'title': self.title,
-            'block_running_status': self.block_running_status,
-            'derived_from': self.derived_from,
+            'node_running_status': self.node_running_status,
             'inputs': self.inputs._dictify(),
             'parameters': self.params._dictify(),
             'outputs': self.outputs._dictify(),

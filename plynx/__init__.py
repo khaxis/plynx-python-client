@@ -1,12 +1,11 @@
 from .exceptions import MissingArgumentError, InvalidTypeArgumentError, \
     NodeAttributeError, ApiActionError, InvalidUssageError, GraphFailed
-from .constants import _BlockRunningStatus, _GraphRunningStatus, \
+from .constants import _NodeRunningStatus, _GraphRunningStatus, \
     _GraphPostAction, _GraphPostStatus, _ValidationCode
 from .api import _get_obj, _save_graph, _get_access_token
 from .base_node import NodeProps, Inputs, OutputItem, Outputs, Params, BaseNode
-from .block import Block
+from .node import Node, File
 from .client import Client
-from .file import File
 from .graph import Graph
 import logging
 
@@ -26,7 +25,7 @@ set_logging_level(3)
 __all__ = [
     ApiActionError,
     BaseNode,
-    Block,
+    Node,
     Client,
     File,
     Graph,
@@ -40,7 +39,7 @@ __all__ = [
     OutputItem,
     Outputs,
     Params,
-    _BlockRunningStatus,
+    _NodeRunningStatus,
     _GraphPostAction,
     _GraphPostStatus,
     _GraphRunningStatus,

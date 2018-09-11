@@ -1,5 +1,5 @@
-from . import InvalidTypeArgumentError, BaseNode, File, Block, \
-    InvalidUssageError, GraphFailed, _BlockRunningStatus, _GraphRunningStatus, \
+from . import InvalidTypeArgumentError, BaseNode, File, Node, \
+    InvalidUssageError, GraphFailed, _NodeRunningStatus, _GraphRunningStatus, \
     _GraphPostAction
 from . import _get_obj, _save_graph
 from collections import deque
@@ -63,22 +63,22 @@ class Graph(object):
     def _dictify(self):
         nodes = [node for node in traverse_nodes(self, self.targets)]
         plynx_nodes = {}
-        for node_type, derived_from in set([(n.node_type, n.derived_from) for n in nodes]):
-            obj = _get_obj('{}s'.format(node_type), derived_from, self.client)
-            plynx_nodes[derived_from] = obj
+        for base_node_name, parent_node in set([(n.base_node_name, n.parent_node) for n in nodes]):
+            obj = _get_obj('nodes', parent_node, self.client)
+            plynx_nodes[parent_node] = obj
 
-        blocks = []
+        res_nodes = []
         for node in nodes:
             node_dict = node._dictify()
-            plynx_node = copy.deepcopy(plynx_nodes[node.derived_from])
+            plynx_node = copy.deepcopy(plynx_nodes[node.parent_node])
             update_recursive(plynx_node, node_dict)
-            blocks.append(plynx_node)
+            res_nodes.append(plynx_node)
 
         graph = {
             'title': self.title,
             'description': self.description,
-            'graph_running_status': _BlockRunningStatus.CREATED,
-            'blocks': blocks
+            'graph_running_status': _GraphRunningStatus.CREATED,
+            'nodes': res_nodes
         }
         return graph
 
@@ -105,20 +105,20 @@ class Graph(object):
             raise InvalidUssageError("The graph must be approved first")
 
         while True:
-            graph = _get_obj("graphs", self._graph_dict["_id"], self.client)
+            graph = _get_obj('graphs', self._graph_dict["_id"], self.client)
             counter = collections.Counter(
                 [
-                    block['block_running_status'] for block in graph['blocks']
+                    node['node_running_status'] for node in graph['nodes']
                 ]
             )
             graph_running_status = graph['graph_running_status']
-            numerator = counter.get(_BlockRunningStatus.SUCCESS, 0)
-            denominator = sum(counter.values()) - counter.get(_BlockRunningStatus.STATIC, 0)
+            numerator = counter.get(_NodeRunningStatus.SUCCESS, 0)
+            denominator = sum(counter.values()) - counter.get(_NodeRunningStatus.STATIC, 0)
             if denominator > 0:
                 progress = float(numerator) / denominator
             else:
                 progress = 1.0
-            block_running_statuss = map(
+            node_running_statuss = map(
                 lambda r: '{}: {}'.format(r[0], r[1]),
                 counter.items()
             )
@@ -127,7 +127,7 @@ class Graph(object):
                 [
                     graph_running_status,
                     '{0:.0f}%'.format(progress * 100)
-                ] + block_running_statuss))
+                ] + node_running_statuss))
 
             if graph_running_status.upper() not in [
                     _GraphRunningStatus.READY,
