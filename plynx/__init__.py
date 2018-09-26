@@ -1,5 +1,6 @@
 from .exceptions import MissingArgumentError, InvalidTypeArgumentError, \
-    NodeAttributeError, ApiActionError, InvalidUssageError, GraphFailed
+    NodeAttributeError, ApiActionError, InvalidUssageError, GraphFailed, \
+    TooManyArgumentsError
 from .constants import _NodeRunningStatus, _GraphRunningStatus, \
     _GraphPostAction, _GraphPostStatus, _ValidationCode
 from .api import _get_obj, _save_graph, _get_access_token
@@ -39,6 +40,7 @@ __all__ = [
     OutputItem,
     Outputs,
     Params,
+    TooManyArgumentsError,
     _NodeRunningStatus,
     _GraphPostAction,
     _GraphPostStatus,

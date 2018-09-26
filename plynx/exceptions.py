@@ -2,6 +2,10 @@ class MissingArgumentError(ValueError):
     pass
 
 
+class TooManyArgumentsError(ValueError):
+    pass
+
+
 class InvalidTypeArgumentError(TypeError):
     pass
 
