@@ -50,5 +50,4 @@ def Node(**kwargs):
 
 
 def File(**kwargs):
-    #kwargs['outputs'] = ['out']
     return Node(outputs=['out'])(**kwargs)
